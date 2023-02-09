@@ -21,7 +21,7 @@ import (
 // .ico/.jpg/.png for other platforms.
 func SetTemplateIcon(templateIconBytes []byte, regularIconBytes []byte) {
 	cstr := (*C.char)(unsafe.Pointer(&templateIconBytes[0]))
-	C.setIcon(cstr, (C.int)(len(templateIconBytes)), true)
+	C.setIcon(cstr, (C.int)(len(templateIconBytes)), false) // Explicitly NOT setting template bool, so we get colorized icons
 }
 
 // SetIcon sets the icon of a menu item. Only works on macOS and Windows.
