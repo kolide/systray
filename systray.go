@@ -123,6 +123,12 @@ func Register(onReady func(), onExit func(), onAppearanceChanged func(bool)) {
 	}
 	systrayExit = onExit
 	systrayExitCalled = false
+
+	if onAppearanceChanged == nil {
+		onAppearanceChanged = func(bool) {}
+	}
+	systrayOnAppearanceChanged = onAppearanceChanged
+
 	registerSystray()
 }
 
@@ -269,7 +275,5 @@ func systrayMenuItemSelected(id uint32) {
 }
 
 func systrayAppearanceChanged(dark bool) {
-	if systrayOnAppearanceChanged != nil {
-		systrayOnAppearanceChanged(dark)
-	}
+	systrayOnAppearanceChanged(dark)
 }
