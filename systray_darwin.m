@@ -71,7 +71,22 @@ withParentMenuId: (int)theParentMenuId
   self->menu = [[NSMenu alloc] init];
   [self->menu setAutoenablesItems: FALSE];
   [self->statusItem setMenu:self->menu];
+  [self->statusItem addObserver:self forKeyPath:@"button.effectiveAppearance" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
   systray_ready();
+}
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"button.effectiveAppearance"]) {
+        NSStatusItem *item = object;
+        NSAppearance *appearance = item.button.effectiveAppearance;
+        NSString *appearanceName = (NSString*)(appearance.name);
+        if ([[appearanceName lowercaseString] containsString:@"dark"]) {
+          systray_appearance_changed(true);
+        } else {
+          systray_appearance_changed(false);
+        }
+    }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
