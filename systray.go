@@ -10,11 +10,12 @@ import (
 )
 
 var (
-	systrayReady      func()
-	systrayExit       func()
-	systrayExitCalled bool
-	menuItems         = make(map[uint32]*MenuItem)
-	menuItemsLock     sync.RWMutex
+	systrayReady               func()
+	systrayExit                func()
+	systrayOnAppearanceChanged func(bool)
+	systrayExitCalled          bool
+	menuItems                  = make(map[uint32]*MenuItem)
+	menuItemsLock              sync.RWMutex
 
 	currentID = uint32(0)
 	quitOnce  sync.Once
@@ -78,17 +79,17 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 
 // Run initializes GUI and starts the event loop, then invokes the onReady
 // callback. It blocks until systray.Quit() is called.
-func Run(onReady, onExit func()) {
+func Run(onReady, onExit func(), onAppearanceChanged func(bool)) {
 	setInternalLoop(true)
-	Register(onReady, onExit)
+	Register(onReady, onExit, onAppearanceChanged)
 
 	nativeLoop()
 }
 
 // RunWithExternalLoop allows the systemtray module to operate with other tookits.
 // The returned start and end functions should be called by the toolkit when the application has started and will end.
-func RunWithExternalLoop(onReady, onExit func()) (start, end func()) {
-	Register(onReady, onExit)
+func RunWithExternalLoop(onReady, onExit func(), onAppearanceChanged func(bool)) (start, end func()) {
+	Register(onReady, onExit, onAppearanceChanged)
 
 	return nativeStart, func() {
 		nativeEnd()
@@ -101,7 +102,7 @@ func RunWithExternalLoop(onReady, onExit func()) (start, end func()) {
 // needs to show other UI elements, for example, webview.
 // To overcome some OS weirdness, On macOS versions before Catalina, calling
 // this does exactly the same as Run().
-func Register(onReady func(), onExit func()) {
+func Register(onReady func(), onExit func(), onAppearanceChanged func(bool)) {
 	if onReady == nil {
 		systrayReady = func() {}
 	} else {
@@ -122,6 +123,12 @@ func Register(onReady func(), onExit func()) {
 	}
 	systrayExit = onExit
 	systrayExitCalled = false
+
+	if onAppearanceChanged == nil {
+		onAppearanceChanged = func(bool) {}
+	}
+	systrayOnAppearanceChanged = onAppearanceChanged
+
 	registerSystray()
 }
 
@@ -265,4 +272,8 @@ func systrayMenuItemSelected(id uint32) {
 	// in case no one waiting for the channel
 	default:
 	}
+}
+
+func systrayAppearanceChanged(dark bool) {
+	systrayOnAppearanceChanged(dark)
 }
