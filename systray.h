@@ -23,7 +23,3 @@ void remove_menu_item(int menuId);
 void show_menu_item(int menuId);
 void reset_menu();
 void quit();
-
-@interface NotificationDelegate: NSObject <UNUserNotificationCenterDelegate>
-
-@end

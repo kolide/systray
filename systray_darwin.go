@@ -7,11 +7,13 @@ package systray
 #include <stdbool.h>
 #include "systray.h"
 
+bool sendNotification(char *cTitle, char *cBody, char *cActionUri);
 void setInternalLoop(bool);
 */
 import "C"
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -155,4 +157,20 @@ func systray_menu_item_selected(cID C.int) {
 //export systray_appearance_changed
 func systray_appearance_changed(dark C.bool) {
 	systrayAppearanceChanged(bool(dark))
+}
+
+func SendNotification(title, body, actionUri string) error {
+	titleCStr := C.CString(title)
+	defer C.free(unsafe.Pointer(titleCStr))
+	bodyCStr := C.CString(body)
+	defer C.free(unsafe.Pointer(bodyCStr))
+	actionUriCStr := C.CString(actionUri)
+	defer C.free(unsafe.Pointer(actionUriCStr))
+
+	success := C.sendNotification(titleCStr, bodyCStr, actionUriCStr)
+	if !success {
+		return fmt.Errorf("could not send notification: %s", title)
+	}
+
+	return nil
 }
