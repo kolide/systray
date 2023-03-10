@@ -50,6 +50,19 @@ withParentMenuId: (int)theParentMenuId
 }
 @end
 
+@implementation NotificationDelegate
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+    NSDictionary *userInfo = response.notification.request.content.userInfo;
+
+    NSString *actionUri = userInfo[@"action_uri"];
+    if ([actionUri length] != 0) {
+        [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:actionUri]];
+    }
+
+    completionHandler();
+}
+@end
+
 @interface AppDelegate: NSObject <NSApplicationDelegate>
   - (void) add_or_update_menu_item:(MenuItem*) item;
   - (IBAction)menuHandler:(id)sender;
@@ -252,6 +265,23 @@ void registerSystray(void) {
 
   owner = [[AppDelegate alloc] init];
   [[NSApplication sharedApplication] setDelegate:owner];
+
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+
+  // Define our custom notification category with actions we will want to use on notifications later
+  UNNotificationAction *learnMoreAction = [UNNotificationAction actionWithIdentifier:@"LearnMoreAction"
+      title:@"Learn More" options:UNNotificationActionOptionNone];
+
+  UNNotificationCategory *category = [UNNotificationCategory categoryWithIdentifier:@"KolideNotificationCategory"
+      actions:@[learnMoreAction] intentIdentifiers:@[]
+      options:UNNotificationCategoryOptionNone];
+  NSSet *categories = [NSSet setWithObject:category];
+  [center setNotificationCategories:categories];
+
+  if ([UNUserNotificationCenter class]) {
+      NotificationDelegate *notificationDelegate = [NotificationDelegate new];
+      [center setDelegate:notificationDelegate];
+  }
 
   // A workaround to avoid crashing on macOS versions before Catalina. Somehow
   // SIGSEGV would happen inside AppKit if [NSApp run] is called from a

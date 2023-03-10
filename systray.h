@@ -1,4 +1,7 @@
 #include "stdbool.h"
+#import <Foundation/Foundation.h>
+#import <UserNotifications/UserNotifications.h>
+#import <AppKit/AppKit.h>
 
 extern void systray_ready();
 extern void systray_on_exit();
@@ -20,3 +23,7 @@ void remove_menu_item(int menuId);
 void show_menu_item(int menuId);
 void reset_menu();
 void quit();
+
+@interface NotificationDelegate: NSObject <UNUserNotificationCenterDelegate>
+
+@end
