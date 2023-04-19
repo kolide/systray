@@ -10,6 +10,8 @@ import (
 )
 
 var (
+	SystrayMenuOpened = make(chan struct{})
+
 	systrayReady               func()
 	systrayExit                func()
 	systrayOnAppearanceChanged func(bool)
@@ -260,6 +262,17 @@ func (item *MenuItem) update() {
 }
 
 func systrayMenuItemSelected(id uint32) {
+
+	// top level status bar opened
+	if id == 0 {
+		select {
+		case SystrayMenuOpened <- struct{}{}:
+			// in case no one waiting for the channel
+		default:
+		}
+		return
+	}
+
 	menuItemsLock.RLock()
 	item, ok := menuItems[id]
 	menuItemsLock.RUnlock()
