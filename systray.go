@@ -267,7 +267,7 @@ func systrayMenuItemSelected(id uint32) {
 	if id == 0 {
 		select {
 		case SystrayMenuOpened <- struct{}{}:
-			// in case no one waiting for the channel
+		// in case no one waiting for the channel
 		default:
 		}
 		return
