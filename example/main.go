@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kolide/systray/example/icon"
-
 	"github.com/kolide/systray"
+	"github.com/kolide/systray/example/icon"
 )
 
 func main() {
