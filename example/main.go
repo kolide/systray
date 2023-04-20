@@ -14,7 +14,7 @@ func main() {
 		fmt.Println("Exit at", now.String())
 	}
 
-	systray.Run(onReady, onExit)
+	systray.Run(onReady, onExit, func(b bool) {})
 }
 
 func addQuitItem() {
@@ -72,6 +72,8 @@ func onReady() {
 
 		for {
 			select {
+			case <-systray.SystrayMenuOpened:
+				systray.SetTitle("Systray Was Opened")
 			case <-mChange.ClickedCh:
 				mChange.SetTitle("I've Changed")
 			case <-mChecked.ClickedCh:
