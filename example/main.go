@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"example/icon"
+
 	"github.com/kolide/systray"
-	"github.com/kolide/systray/example/icon"
 )
 
 func main() {
@@ -39,6 +40,9 @@ func onReady() {
 		systray.SetTemplateIcon(icon.Data, icon.Data)
 		systray.SetTitle("Awesome App")
 		systray.SetTooltip("Pretty awesome棒棒嗒")
+		mOpened := systray.AddMenuItem("Should Change When Menu Opened", "Should Change When Menu Opened")
+		mOpened.Disable()
+
 		mChange := systray.AddMenuItem("Change Me", "Change Me")
 		mChecked := systray.AddMenuItemCheckbox("Checked", "Check Me", true)
 		mEnabled := systray.AddMenuItem("Enabled", "Enabled")
@@ -73,8 +77,8 @@ func onReady() {
 		for {
 			select {
 			case <-systray.SystrayMenuOpened:
-				systray.SetTitle("Systray Was Opened")
-				systray.SetTooltip("Systray was Opened")
+				mOpened.SetTitle("Menu Has Been Opened")
+				mOpened.SetTooltip("Menu Has Been Opened")
 			case <-mChange.ClickedCh:
 				mChange.SetTitle("I've Changed")
 			case <-mChecked.ClickedCh:

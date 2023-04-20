@@ -97,6 +97,11 @@ func (t *tray) GetProperty(id int32, name string) (value dbus.Variant, err *dbus
 func (t *tray) Event(id int32, eventID string, data dbus.Variant, timestamp uint32) (err *dbus.Error) {
 	if eventID == "clicked" {
 		systrayMenuItemSelected(uint32(id))
+		return
+	}
+
+	if eventID == "opened" && id == 0 {
+		systrayMenuOpened()
 	}
 	return
 }
