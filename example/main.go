@@ -74,6 +74,7 @@ func onReady() {
 			select {
 			case <-systray.SystrayMenuOpened:
 				systray.SetTitle("Systray Was Opened")
+				systray.SetTooltip("Systray was Opened")
 			case <-mChange.ClickedCh:
 				mChange.SetTitle("I've Changed")
 			case <-mChecked.ClickedCh:
