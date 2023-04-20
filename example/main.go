@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"example/icon"
+	"github.com/kolide/systray/example/icon"
 
 	"github.com/kolide/systray"
 )
