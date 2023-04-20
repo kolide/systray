@@ -309,7 +309,7 @@ func (t *winTray) wndProc(hWnd windows.Handle, message uint32, wParam, lParam ui
 	case WM_INITMENUPOPUP:
 		isTopLevelMenu := lParam&0x0000FFFF == 0
 		if isTopLevelMenu {
-			systrayMenuItemSelected(0)
+			systrayMenuOpened()
 		}
 	case WM_COMMAND:
 		menuItemId := int32(wParam)

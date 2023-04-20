@@ -77,7 +77,7 @@ withParentMenuId: (int)theParentMenuId
 }
 
 - (void)menuWillOpen:(NSMenu *)menu {
-  [self menuHandler:0];
+  systray_menu_opened();
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
