@@ -6,6 +6,17 @@ package systray
 // these test were here and already broken when the repos was forked
 // commented out to avoid errors showing up in console while developing
 
+// import (
+// 	"io/ioutil"
+// 	"runtime"
+// 	"sync/atomic"
+// 	"testing"
+// 	"time"
+// 	"unsafe"
+
+// 	"golang.org/x/sys/windows"
+// )
+
 // const iconFilePath = "example/icon/iconwin.ico"
 
 // func TestBaseWindowsTray(t *testing.T) {
