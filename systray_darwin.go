@@ -152,6 +152,11 @@ func systray_menu_item_selected(cID C.int) {
 	systrayMenuItemSelected(uint32(cID))
 }
 
+//export systray_menu_opened
+func systray_menu_opened() {
+	systrayMenuOpened()
+}
+
 //export systray_appearance_changed
 func systray_appearance_changed(dark C.bool) {
 	systrayAppearanceChanged(bool(dark))

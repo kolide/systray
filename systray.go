@@ -10,6 +10,8 @@ import (
 )
 
 var (
+	SystrayMenuOpened = make(chan struct{})
+
 	systrayReady               func()
 	systrayExit                func()
 	systrayOnAppearanceChanged func(bool)
@@ -257,6 +259,13 @@ func (item *MenuItem) update() {
 	menuItems[item.id] = item
 	menuItemsLock.Unlock()
 	addOrUpdateMenuItem(item)
+}
+
+func systrayMenuOpened() {
+	select {
+	case SystrayMenuOpened <- struct{}{}:
+	default:
+	}
 }
 
 func systrayMenuItemSelected(id uint32) {

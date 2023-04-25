@@ -50,13 +50,13 @@ withParentMenuId: (int)theParentMenuId
 }
 @end
 
-@interface AppDelegate: NSObject <NSApplicationDelegate>
+@interface AppDelegate: NSObject <NSApplicationDelegate, NSMenuDelegate>
   - (void) add_or_update_menu_item:(MenuItem*) item;
   - (IBAction)menuHandler:(id)sender;
   @property (assign) IBOutlet NSWindow *window;
-  @end
+@end
 
-  @implementation AppDelegate
+@implementation AppDelegate
 {
   NSStatusItem *statusItem;
   NSMenu *menu;
@@ -70,9 +70,14 @@ withParentMenuId: (int)theParentMenuId
   self->statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
   self->menu = [[NSMenu alloc] init];
   [self->menu setAutoenablesItems: FALSE];
+  [self->menu setDelegate:self]; // Set the delegate to AppDelegate
   [self->statusItem setMenu:self->menu];
   [self->statusItem addObserver:self forKeyPath:@"button.effectiveAppearance" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionInitial context:nil];
   systray_ready();
+}
+
+- (void)menuWillOpen:(NSMenu *)menu {
+  systray_menu_opened();
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
@@ -140,7 +145,7 @@ withParentMenuId: (int)theParentMenuId
       [parentItem setSubmenu:theMenu];
     }
   }
-  
+
   NSMenuItem *menuItem;
   menuItem = find_menu_item(theMenu, item->menuId);
   if (menuItem == NULL) {
@@ -222,7 +227,7 @@ NSMenuItem *find_menu_item(NSMenu *ourMenu, NSNumber *menuId) {
 {
   NSMenuItem* menuItem = find_menu_item(menu, menuId);
   if (menuItem != NULL) {
-    [menuItem.menu removeItem:menuItem];     
+    [menuItem.menu removeItem:menuItem];
   }
 }
 
