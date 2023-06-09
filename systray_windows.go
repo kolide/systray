@@ -404,7 +404,7 @@ func (t *winTray) initInstance() error {
 	if instanceHandle == 0 {
 		log.Printf("systray error: instanceHandle: %d\n", instanceHandle)
 		log.Printf("systray error: instanceHandle: %w\n", err)
-		return err
+		return fmt.Errorf("instanceHandle:%d", instanceHandle)
 	}
 	t.instance = windows.Handle(instanceHandle)
 
@@ -413,7 +413,7 @@ func (t *winTray) initInstance() error {
 	if iconHandle == 0 {
 		log.Printf("systray error: iconHandle: %d\n", iconHandle)
 		log.Printf("systray error: iconHandle: %w\n", err)
-		return err
+		return fmt.Errorf("iconHandle:%d", iconHandle)
 	}
 	t.icon = windows.Handle(iconHandle)
 
@@ -422,7 +422,7 @@ func (t *winTray) initInstance() error {
 	if cursorHandle == 0 {
 		log.Printf("systray error: cursorHandle: %d\n", cursorHandle)
 		log.Printf("systray error: cursorHandle: %w\n", err)
-		return err
+		return fmt.Errorf("cursorHandle:%d", cursorHandle)
 	}
 	t.cursor = windows.Handle(cursorHandle)
 
@@ -430,14 +430,14 @@ func (t *winTray) initInstance() error {
 	if err != nil {
 		log.Printf("systray error: classNamePtr: %d\n", classNamePtr)
 		log.Printf("systray error: classNamePtr: %w\n", err)
-		return err
+		return fmt.Errorf("classNamePtr:%d", classNamePtr)
 	}
 
 	windowNamePtr, err := windows.UTF16PtrFromString(windowName)
 	if err != nil {
 		log.Printf("systray error: windowNamePtr: %d\n", windowNamePtr)
 		log.Printf("systray error: windowNamePtr: %w\n", err)
-		return err
+		return fmt.Errorf("windowNamePtr:%d", windowNamePtr)
 	}
 
 	t.wcex = &wndClassEx{
@@ -452,7 +452,7 @@ func (t *winTray) initInstance() error {
 	}
 	if err := t.wcex.register(); err != nil {
 		log.Printf("systray error: wcex.register: %w\n", err)
-		return err
+		return fmt.Errorf("wcex.register:%w", err)
 	}
 
 	windowHandle, _, err := pCreateWindowEx.Call(
@@ -472,7 +472,7 @@ func (t *winTray) initInstance() error {
 	if windowHandle == 0 {
 		log.Printf("systray error: windowHandle: %d\n", windowHandle)
 		log.Printf("systray error: windowHandle: %w\n", err)
-		return err
+		return fmt.Errorf("windowHandle:%d", windowHandle)
 	}
 	t.window = windows.Handle(windowHandle)
 
