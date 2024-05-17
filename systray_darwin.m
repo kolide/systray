@@ -65,6 +65,12 @@ withParentMenuId: (int)theParentMenuId
 
 @synthesize window = _window;
 
+- (BOOL)application:(NSApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<NSUserActivityRestoring>> *restorableObjects))restorationHandler {
+    NSLog(@"TODO RM universal_link_handler: Userinfo Data==>%@  useractivityTitle ==>%@  activityType-->%@ webpage-->%@",userActivity.userInfo , userActivity.title,userActivity.activityType,userActivity.webpageURL );
+
+    return YES;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
   self->statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
