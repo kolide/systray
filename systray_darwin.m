@@ -66,9 +66,14 @@ withParentMenuId: (int)theParentMenuId
 @synthesize window = _window;
 
 - (BOOL)application:(NSApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<NSUserActivityRestoring>> *restorableObjects))restorationHandler {
-    NSLog(@"TODO RM universal_link_handler: activityType-->%@ webpage-->%@ referrer-->%@", userActivity.activityType, userActivity.webpageURL, userActivity.referrerURL);
+  if (![userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+    return NO;
+  }
 
-    return YES;
+  NSString *urlStr = [userActivity.webpageURL absoluteString];
+  handleURL((char *)[urlStr UTF8String]);
+
+  return YES;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification

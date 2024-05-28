@@ -21,6 +21,8 @@ var (
 
 	currentID = uint32(0)
 	quitOnce  sync.Once
+
+	urlInput chan string
 )
 
 // This helper function allows us to call systrayExit only once,
@@ -34,6 +36,7 @@ func runSystrayExit() {
 
 func init() {
 	runtime.LockOSThread()
+	urlInput = make(chan string, 1)
 }
 
 // MenuItem is used to keep track each menu item of systray.
@@ -88,7 +91,7 @@ func Run(onReady, onExit func(), onAppearanceChanged func(bool)) {
 	nativeLoop()
 }
 
-// RunWithExternalLoop allows the systemtray module to operate with other tookits.
+// RunWithExternalLoop allows the systemtray module to operate with other toolkits.
 // The returned start and end functions should be called by the toolkit when the application has started and will end.
 func RunWithExternalLoop(onReady, onExit func(), onAppearanceChanged func(bool)) (start, end func()) {
 	Register(onReady, onExit, onAppearanceChanged)

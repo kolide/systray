@@ -5,6 +5,7 @@ extern void systray_on_exit();
 extern void systray_menu_opened();
 extern void systray_menu_item_selected(int menu_id);
 extern void systray_appearance_changed(bool dark);
+extern void handleURL(char*);
 void registerSystray(void);
 void nativeEnd(void);
 int nativeLoop(void);

@@ -161,3 +161,8 @@ func systray_menu_opened() {
 func systray_appearance_changed(dark C.bool) {
 	systrayAppearanceChanged(bool(dark))
 }
+
+//export handleURL
+func handleURL(u *C.char) {
+	urlInput <- C.GoString(u)
+}
