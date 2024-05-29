@@ -36,7 +36,6 @@ func runSystrayExit() {
 
 func init() {
 	runtime.LockOSThread()
-	urlInput = make(chan string, 1)
 }
 
 // MenuItem is used to keep track each menu item of systray.
@@ -84,7 +83,8 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 
 // Run initializes GUI and starts the event loop, then invokes the onReady
 // callback. It blocks until systray.Quit() is called.
-func Run(onReady, onExit func(), onAppearanceChanged func(bool)) {
+func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan string) {
+	urlInput = input
 	setInternalLoop(true)
 	Register(onReady, onExit, onAppearanceChanged)
 
