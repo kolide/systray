@@ -21,6 +21,8 @@ var (
 
 	currentID = uint32(0)
 	quitOnce  sync.Once
+
+	urlInput chan string
 )
 
 // This helper function allows us to call systrayExit only once,
@@ -81,14 +83,15 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 
 // Run initializes GUI and starts the event loop, then invokes the onReady
 // callback. It blocks until systray.Quit() is called.
-func Run(onReady, onExit func(), onAppearanceChanged func(bool)) {
+func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan string) {
+	urlInput = input
 	setInternalLoop(true)
 	Register(onReady, onExit, onAppearanceChanged)
 
 	nativeLoop()
 }
 
-// RunWithExternalLoop allows the systemtray module to operate with other tookits.
+// RunWithExternalLoop allows the systemtray module to operate with other toolkits.
 // The returned start and end functions should be called by the toolkit when the application has started and will end.
 func RunWithExternalLoop(onReady, onExit func(), onAppearanceChanged func(bool)) (start, end func()) {
 	Register(onReady, onExit, onAppearanceChanged)

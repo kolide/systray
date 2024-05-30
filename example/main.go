@@ -13,8 +13,9 @@ func main() {
 		now := time.Now()
 		fmt.Println("Exit at", now.String())
 	}
+	input := make(chan string, 1)
 
-	systray.Run(onReady, onExit, func(b bool) {})
+	systray.Run(onReady, onExit, func(b bool) {}, input)
 }
 
 func addQuitItem() {

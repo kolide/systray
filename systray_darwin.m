@@ -65,6 +65,17 @@ withParentMenuId: (int)theParentMenuId
 
 @synthesize window = _window;
 
+- (BOOL)application:(NSApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<NSUserActivityRestoring>> *restorableObjects))restorationHandler {
+  if (![userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+    return NO;
+  }
+
+  NSString *urlStr = [userActivity.webpageURL absoluteString];
+  handleURL((char *)[urlStr UTF8String]);
+
+  return YES;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
   self->statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
