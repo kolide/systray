@@ -12,6 +12,11 @@ import (
 var (
 	SystrayMenuOpened = make(chan struct{})
 
+	showChan = make(chan struct{})
+	showOnce = sync.OnceFunc(func() {
+		showChan <- struct{}{}
+	})
+
 	systrayReady               func()
 	systrayExit                func()
 	systrayOnAppearanceChanged func(bool)
@@ -88,6 +93,7 @@ func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan stri
 	setInternalLoop(true)
 	Register(onReady, onExit, onAppearanceChanged)
 
+	<-showChan
 	nativeLoop()
 }
 
@@ -100,6 +106,10 @@ func RunWithExternalLoop(onReady, onExit func(), onAppearanceChanged func(bool))
 		nativeEnd()
 		Quit()
 	}
+}
+
+func Show() {
+	showOnce()
 }
 
 // Register initializes GUI and registers the callbacks but relies on the

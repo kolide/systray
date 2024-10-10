@@ -15,6 +15,12 @@ func main() {
 	}
 	input := make(chan string, 1)
 
+	go func() {
+		// can use some other condition here to wait to show the systray
+		time.Sleep(2 * time.Second)
+		systray.Show()
+	}()
+
 	systray.Run(onReady, onExit, func(b bool) {}, input)
 }
 
