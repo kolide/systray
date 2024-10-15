@@ -239,6 +239,13 @@ type winTray struct {
 	initialized *abool.AtomicBool
 }
 
+func WindowHandle() (windows.Handle, error) {
+	if !wt.isReady() {
+		return windows.InvalidHandle, ErrTrayNotReadyYet
+	}
+	return wt.window, nil
+}
+
 // isReady checks if the tray as already been initialized. It is not goroutine safe with in regard to the initialization function, but prevents a panic when functions are called too early.
 func (t *winTray) isReady() bool {
 	return t.initialized.IsSet()
