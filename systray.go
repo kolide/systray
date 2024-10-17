@@ -91,9 +91,18 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan string) {
 	urlInput = input
 	setInternalLoop(true)
+
+	// On windows, the systray icon is set in the register function, so we need to wait for the showChan signal
+	// before we register, however on linux and darwin the internal loop set above will crash the program if register
+	// isn't called in a timely fashion
+	if runtime.GOOS == "windows" {
+		<-showChan
+	}
 	Register(onReady, onExit, onAppearanceChanged)
 
-	<-showChan
+	if runtime.GOOS != "windows" {
+		<-showChan
+	}
 	nativeLoop()
 }
 
