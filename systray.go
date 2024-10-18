@@ -8,7 +8,6 @@ import (
 	"runtime"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 var (
@@ -93,24 +92,13 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 // Run initializes GUI and starts the event loop, then invokes the onReady
 // callback. It blocks until systray.Quit() is called.
 func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan string) {
-	for {
-		select {
-		case <-showChan:
-			// do the systray thingies
-			urlInput = input
-			setInternalLoop(true)
-			Register(onReady, onExit, onAppearanceChanged)
+	<-showChan
+	urlInput = input
+	setInternalLoop(true)
+	Register(onReady, onExit, onAppearanceChanged)
 
-			// this blocks until exit called
-			nativeLoop()
-
-			// exit when nativeLoop returns
-			os.Exit(0)
-		default:
-			// sleep a little to not eat cpu
-			time.Sleep(1 * time.Second)
-		}
-	}
+	// this blocks until exit called
+	nativeLoop()
 }
 
 // RunWithExternalLoop allows the systemtray module to operate with other toolkits.
