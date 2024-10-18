@@ -4,16 +4,20 @@ package systray
 import (
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 var (
 	SystrayMenuOpened = make(chan struct{})
 
-	showChan = make(chan struct{})
-	showOnce = sync.OnceFunc(func() {
+	showChan  = make(chan struct{})
+	isShowing atomic.Bool
+	showOnce  = sync.OnceFunc(func() {
+		isShowing.Store(true)
 		showChan <- struct{}{}
 	})
 
@@ -89,21 +93,24 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 // Run initializes GUI and starts the event loop, then invokes the onReady
 // callback. It blocks until systray.Quit() is called.
 func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan string) {
-	urlInput = input
-	setInternalLoop(true)
+	for {
+		select {
+		case <-showChan:
+			// do the systray thingies
+			urlInput = input
+			setInternalLoop(true)
+			Register(onReady, onExit, onAppearanceChanged)
 
-	// On windows, the systray icon is set in the register function, so we need to wait for the showChan signal
-	// before we register, however on linux and darwin the internal loop set above will crash the program if register
-	// isn't called in a timely fashion
-	if runtime.GOOS == "windows" {
-		<-showChan
-	}
-	Register(onReady, onExit, onAppearanceChanged)
+			// this blocks until exit called
+			nativeLoop()
 
-	if runtime.GOOS != "windows" {
-		<-showChan
+			// exit when nativeLoop returns
+			os.Exit(0)
+		default:
+			// sleep a little to not eat cpu
+			time.Sleep(1 * time.Second)
+		}
 	}
-	nativeLoop()
 }
 
 // RunWithExternalLoop allows the systemtray module to operate with other toolkits.
@@ -119,6 +126,10 @@ func RunWithExternalLoop(onReady, onExit func(), onAppearanceChanged func(bool))
 
 func Show() {
 	showOnce()
+}
+
+func IsShowing() bool {
+	return isShowing.Load()
 }
 
 // Register initializes GUI and registers the callbacks but relies on the
@@ -163,6 +174,11 @@ func ResetMenu() {
 
 // Quit the systray
 func Quit() {
+	// systray was never initalized, so just exit
+	if !IsShowing() {
+		os.Exit(0)
+	}
+
 	quitOnce.Do(quit)
 }
 
