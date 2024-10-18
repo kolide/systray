@@ -4,6 +4,7 @@ package systray
 import (
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -16,6 +17,7 @@ var (
 	showOnce = sync.OnceFunc(func() {
 		showChan <- struct{}{}
 	})
+	isReady atomic.Bool
 
 	systrayReady               func()
 	systrayExit                func()
@@ -89,20 +91,12 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 // Run initializes GUI and starts the event loop, then invokes the onReady
 // callback. It blocks until systray.Quit() is called.
 func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan string) {
+	<-showChan
 	urlInput = input
 	setInternalLoop(true)
-
-	// On windows, the systray icon is set in the register function, so we need to wait for the showChan signal
-	// before we register, however on linux and darwin the internal loop set above will crash the program if register
-	// isn't called in a timely fashion
-	if runtime.GOOS == "windows" {
-		<-showChan
-	}
 	Register(onReady, onExit, onAppearanceChanged)
 
-	if runtime.GOOS != "windows" {
-		<-showChan
-	}
+	// this blocks until exit called
 	nativeLoop()
 }
 
@@ -121,6 +115,10 @@ func Show() {
 	showOnce()
 }
 
+func IsReady() bool {
+	return isReady.Load()
+}
+
 // Register initializes GUI and registers the callbacks but relies on the
 // caller to run the event loop somewhere else. It's useful if the program
 // needs to show other UI elements, for example, webview.
@@ -128,12 +126,15 @@ func Show() {
 // this does exactly the same as Run().
 func Register(onReady func(), onExit func(), onAppearanceChanged func(bool)) {
 	if onReady == nil {
-		systrayReady = func() {}
+		systrayReady = func() {
+			isReady.Store(true)
+		}
 	} else {
 		// Run onReady on separate goroutine to avoid blocking event loop
 		readyCh := make(chan interface{})
 		go func() {
 			<-readyCh
+			isReady.Store(true)
 			onReady()
 		}()
 		systrayReady = func() {
@@ -163,6 +164,11 @@ func ResetMenu() {
 
 // Quit the systray
 func Quit() {
+	// systray was never initalized, so just exit
+	if !IsReady() {
+		os.Exit(0)
+	}
+
 	quitOnce.Do(quit)
 }
 
