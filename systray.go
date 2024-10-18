@@ -13,12 +13,11 @@ import (
 var (
 	SystrayMenuOpened = make(chan struct{})
 
-	showChan  = make(chan struct{})
-	isShowing atomic.Bool
-	showOnce  = sync.OnceFunc(func() {
-		isShowing.Store(true)
+	showChan = make(chan struct{})
+	showOnce = sync.OnceFunc(func() {
 		showChan <- struct{}{}
 	})
+	isReady atomic.Bool
 
 	systrayReady               func()
 	systrayExit                func()
@@ -116,8 +115,8 @@ func Show() {
 	showOnce()
 }
 
-func IsShowing() bool {
-	return isShowing.Load()
+func IsReady() bool {
+	return isReady.Load()
 }
 
 // Register initializes GUI and registers the callbacks but relies on the
@@ -127,12 +126,15 @@ func IsShowing() bool {
 // this does exactly the same as Run().
 func Register(onReady func(), onExit func(), onAppearanceChanged func(bool)) {
 	if onReady == nil {
-		systrayReady = func() {}
+		systrayReady = func() {
+			isReady.Store(true)
+		}
 	} else {
 		// Run onReady on separate goroutine to avoid blocking event loop
 		readyCh := make(chan interface{})
 		go func() {
 			<-readyCh
+			isReady.Store(true)
 			onReady()
 		}()
 		systrayReady = func() {
@@ -163,7 +165,7 @@ func ResetMenu() {
 // Quit the systray
 func Quit() {
 	// systray was never initalized, so just exit
-	if !IsShowing() {
+	if !IsReady() {
 		os.Exit(0)
 	}
 
