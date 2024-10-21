@@ -12,12 +12,7 @@ import (
 
 var (
 	SystrayMenuOpened = make(chan struct{})
-
-	showChan = make(chan struct{})
-	showOnce = sync.OnceFunc(func() {
-		showChan <- struct{}{}
-	})
-	isReady atomic.Bool
+	isReady           atomic.Bool
 
 	systrayReady               func()
 	systrayExit                func()
@@ -91,7 +86,6 @@ func newMenuItem(title string, tooltip string, parent *MenuItem) *MenuItem {
 // Run initializes GUI and starts the event loop, then invokes the onReady
 // callback. It blocks until systray.Quit() is called.
 func Run(onReady, onExit func(), onAppearanceChanged func(bool), input chan string) {
-	<-showChan
 	urlInput = input
 	setInternalLoop(true)
 	Register(onReady, onExit, onAppearanceChanged)
@@ -109,10 +103,6 @@ func RunWithExternalLoop(onReady, onExit func(), onAppearanceChanged func(bool))
 		nativeEnd()
 		Quit()
 	}
-}
-
-func Show() {
-	showOnce()
 }
 
 func IsReady() bool {
