@@ -270,7 +270,7 @@ func stayRegistered() {
 		select {
 		case sig := <-sc:
 			// sig.Body has the args, which are [name old_owner new_owner]
-			if sig.Body[2] != "" {
+			if sig != nil && len(sig.Body) >= 3 && sig.Body[2] != "" {
 				register()
 			}
 		case <-quitChan:
